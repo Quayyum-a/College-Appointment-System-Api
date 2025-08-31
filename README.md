@@ -1,27 +1,10 @@
-# College Appointment System API
-
-Backend API built with Node.js, Express, Sequelize (MySQL), JWT, and Jest (unit + E2E tests).
-
 ## Tech Stack
 - Node.js + Express.js
 - MySQL (dev/prod) via Sequelize ORM
 - JWT Authentication
-- Jest + Supertest (unit + E2E)
+- Jest 
 
-## Environment
-Create a `.env` (see `.env.example`):
-- DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME
-- JWT_SECRET, JWT_EXPIRES_IN
-- PORT
 
-Note: Tests run with SQLite in-memory automatically (NODE_ENV=test). Dev/Prod use MySQL.
-
-## Install & Run
-```
-npm install
-npm run dev
-```
-Server: GET /health -> { ok: true }
 
 ## Testing
 ```
