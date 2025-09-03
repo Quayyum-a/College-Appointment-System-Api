@@ -4,8 +4,6 @@
 - JWT Authentication
 - Jest 
 
-
-
 ## Testing
 ```
 npm test
