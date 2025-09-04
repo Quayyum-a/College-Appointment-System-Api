@@ -1,16 +1,11 @@
 const { Appointment, Availability } = require('../config/database');
 
-async function bookAppointment({ studentId, professorId, availabilityId }) {
+async function bookAppointment({ studentId, availabilityId }) {
   const availabilityRecord = await Availability.findByPk(availabilityId);
   if (!availabilityRecord) {
     const errorAvailabilityNotFound = new Error('Availability not found');
     errorAvailabilityNotFound.status = 404;
     throw errorAvailabilityNotFound;
-  }
-  if (availabilityRecord.professorId !== professorId) {
-    const errorAvailabilityProfessorMismatch = new Error('Availability does not belong to professor');
-    errorAvailabilityProfessorMismatch.status = 400;
-    throw errorAvailabilityProfessorMismatch;
   }
   if (availabilityRecord.isBooked) {
     const errorSlotAlreadyBooked = new Error('Slot already booked');
@@ -25,7 +20,12 @@ async function bookAppointment({ studentId, professorId, availabilityId }) {
     throw errorSlotAlreadyBooked;
   }
 
-  const appointmentRecord = await Appointment.create({ studentId, professorId, availabilityId, status: 'booked' });
+  const appointmentRecord = await Appointment.create({
+    studentId,
+    professorId: availabilityRecord.professorId,
+    availabilityId,
+    status: 'booked',
+  });
   availabilityRecord.isBooked = true;
   await availabilityRecord.save();
   return appointmentRecord;

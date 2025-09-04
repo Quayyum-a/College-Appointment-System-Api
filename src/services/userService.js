@@ -1,9 +1,13 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User } = require('../config/database');
+const { sequelize, User } = require('../config/database');
 
 async function register({ name, email, password, role }) {
-  const existingUserWithEmail = await User.findOne({ where: { email } });
+  const normalizedEmail = String(email).trim().toLowerCase();
+
+  const existingUserWithEmail = await User.findOne({
+    where: sequelize.where(sequelize.fn('LOWER', sequelize.col('email')), normalizedEmail),
+  });
   if (existingUserWithEmail) {
     const errorDuplicateEmail = new Error('Email already registered');
     errorDuplicateEmail.status = 400;
@@ -15,13 +19,16 @@ async function register({ name, email, password, role }) {
     errorInvalidRole.status = 400;
     throw errorInvalidRole;
   }
-  const passwordHash = await bcrypt.hash(password, 10);
-  const createdUserAccount = await User.create({ name, email, password: passwordHash, role });
+  const passwordHash = await bcrypt.hash(password.trim(), 10);
+  const createdUserAccount = await User.create({ name: name.trim(), email: normalizedEmail, password: passwordHash, role });
   return { id: createdUserAccount.id, name: createdUserAccount.name, email: createdUserAccount.email, role: createdUserAccount.role };
 }
 
 async function login({ email, password }) {
-  const userAccountRecord = await User.findOne({ where: { email } });
+  const normalizedEmail = String(email).trim().toLowerCase();
+  const userAccountRecord = await User.findOne({
+    where: sequelize.where(sequelize.fn('LOWER', sequelize.col('email')), normalizedEmail),
+  });
   if (!userAccountRecord) {
     const errorInvalidCredentials = new Error('Invalid credentials');
     errorInvalidCredentials.status = 401;

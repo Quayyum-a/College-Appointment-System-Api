@@ -2,10 +2,9 @@ const appointmentService = require('../services/appointmentService');
 
 async function book(req, res, next) {
   try {
-    const { professorId, availabilityId } = req.body;
+    const { availabilityId } = req.body;
     const createdAppointmentRecord = await appointmentService.bookAppointment({
       studentId: req.user.id,
-      professorId,
       availabilityId,
     });
     res.status(201).json(createdAppointmentRecord);

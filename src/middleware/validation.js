@@ -26,6 +26,10 @@ function toInt(value) {
   return typeof value === 'number' ? value : parseInt(value, 10);
 }
 
+function todayISODateUTC() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 function requiredString({ field, min = 1, max = 255 }) {
   return (data, addError) => {
     const value = data[field];
@@ -67,6 +71,15 @@ function requiredISODate({ field }) {
   };
 }
 
+function requiredNotPastISODate({ field }) {
+  return (data, addError) => {
+    const value = data[field];
+    if (!isISODate(value)) return addError(field, 'must be a valid date in YYYY-MM-DD format');
+    const today = todayISODateUTC();
+    if (value < today) return addError(field, 'date cannot be in the past');
+  };
+}
+
 function timeSlotRange({ field }) {
   return (data, addError) => {
     const value = data[field];
@@ -81,6 +94,18 @@ function timeSlotRange({ field }) {
     const start = startH * 60 + startM;
     const end = endH * 60 + endM;
     if (start >= end) return addError(field, 'end time must be after start time');
+  };
+}
+
+function strongPassword({ field, min = 8 }) {
+  return (data, addError) => {
+    const value = data[field];
+    if (!isString(value)) return addError(field, 'must be a string');
+    const trimmed = value.trim();
+    if (trimmed.length < min) return addError(field, `must be at least ${min} characters`);
+    const hasLetter = /[A-Za-z]/.test(trimmed);
+    const hasNumber = /\d/.test(trimmed);
+    if (!hasLetter || !hasNumber) return addError(field, 'must include letters and numbers');
   };
 }
 
@@ -106,5 +131,7 @@ module.exports = {
   requiredEnum,
   requiredInt,
   requiredISODate,
+  requiredNotPastISODate,
   timeSlotRange,
+  strongPassword,
 };

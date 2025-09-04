@@ -1,34 +1,85 @@
-## Tech Stack
-- Node.js + Express.js
-- MySQL (dev/prod) via Sequelize ORM
-- JWT Authentication
-- Jest 
+# College Appointment API
 
-## Testing
-```
-npm test
-```
-All tests run with SQLite in-memory and reset schema per test suite.
+A simple REST API for students to book appointments with professors.
 
-## Database
-Sequelize sync is used for schema creation. In production, configure MySQL via env vars.
+## How to Run
+- Install: npm install
+- Dev: npm run dev
+- Prod: npm start
+- Tests: npm test (uses in-memory SQLite)
 
-## Endpoints (for Postman)
-- POST /auth/register -> Register student/professor
-- POST /auth/login -> Login and get JWT
-- POST /availability -> Professor adds availability (auth: professor)
-- GET /availability/:professorId -> Student views available slots
-- POST /appointments -> Student books appointment (auth: student)
-- GET /appointments -> View all student/professor appointments (booked only)
-- DELETE /appointments/:id -> Professor cancels appointment
+Env (defaults exist): DB_* for MySQL, JWT_SECRET, JWT_EXPIRES_IN.
 
-## Roles & Rules
+## Main Endpoints
+- POST /auth/register — create user (student or professor)
+- POST /auth/login — get a JWT token
+- POST /availability — professor adds a time slot (auth: professor)
+- GET /availability/:professorId — list open slots for a professor
+- POST /appointments — student books a slot with availabilityId (auth: student)
+- GET /appointments — list your booked appointments
+- DELETE /appointments/:id — professor cancels a booking they own
+
+## Request Examples
+1) Register
+{
+  "name": "Alice",
+  "email": "alice@example.com",
+  "password": "pass1234",
+  "role": "student"
+}
+
+2) Login
+{
+  "email": "alice@example.com",
+  "password": "pass1234"
+}
+
+3) Add Availability (as professor)
+Headers: Authorization: Bearer <your JWT>
+{
+  "date": "2025-02-01",
+  "timeSlot": "11:00-11:30"
+}
+
+4) Book Appointment (as student)
+Headers: Authorization: Bearer <your JWT>
+{
+  "availabilityId": 1
+}
+
+## Simple Rules (Business Logic)
 - Roles: student, professor
-- Overlap prevention: same (professorId, date, timeSlot) unique
-- Booking: only free slots; double-booking prevented
-- Listing: default returns only status=booked (cancelled hidden)
-- Cancel: professor owning appointment can cancel; status=cancelled; slot freed
+- Booking: only unbooked slots; prevents double-booking
+- Cancel: only the professor who owns the appointment can cancel
+- Listing: returns only status = booked by default
+
+## Recent Changes (Important)
+- Auth
+  - role must be one of: student, professor
+  - email is trimmed + lowercased; uniqueness is case-insensitive
+  - stronger password: min 8 characters, must include letters and numbers
+- Availability
+  - cannot create availability in the past (date must be today or future)
+  - if date is today, the end time must be in the future (same day check)
+  - prevents overlapping time ranges for the same professor and date (not just exact matches)
+- Appointments
+  - book with availabilityId only; the system infers the professorId from the availability
+
+## Validation (Short)
+- Auth: name length, email format, strong password, allowed role
+- Availability: YYYY-MM-DD date, HH:MM-HH:MM slot, not past, end > start, same-day end in future
+- Appointments: ids are positive integers
+
+## Project Structure
+- src/controllers — route handlers (thin)
+- src/services — business logic
+- src/routes — route definitions
+- src/middleware/validation.js — small custom validators
+- src/validators — per-feature validators
+- src/models — Sequelize models
+- src/tests — Jest tests
 
 ## Notes
-- Use Postman to test endpoints with Authorization: Bearer <token>
-- Keep controllers slim; business logic in services; centralized error handling.
+- Use the JWT from /auth/login in the Authorization header when calling protected routes
+- Keep controllers small; most logic lives in services
+- Errors return JSON with a message and proper HTTP status codes
