@@ -3,8 +3,8 @@ const app = require('../server');
 const { initModels, sequelize } = require('../config/database');
 
 async function registerAndLogin(name, email, role) {
-  await request(app).post('/auth/register').send({ name, email, password: 'pass123', role });
-  const loginRes = await request(app).post('/auth/login').send({ email, password: 'pass123' });
+  await request(app).post('/auth/register').send({ name, email, password: 'Pass12345', role });
+  const loginRes = await request(app).post('/auth/login').send({ email, password: 'Pass12345' });
   return { token: loginRes.body.token };
 }
 
@@ -58,7 +58,7 @@ describe('Input Validation', () => {
     const badBook = await request(app)
       .post('/appointments')
       .set('Authorization', `Bearer ${studentToken}`)
-      .send({ professorId: 'x', availabilityId: 1 });
+      .send({ availabilityId: 'x' });
     expect(badBook.status).toBe(400);
 
     const badCancel = await request(app)

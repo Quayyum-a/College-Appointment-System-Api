@@ -15,7 +15,7 @@ describe('Auth', () => {
   const registerStudentResponse = await request(app).post('/auth/register').send({
     name: 'Alice',
     email: 'alice@example.com',
-    password: 'password',
+    password: 'Pass12345',
     role: 'student',
   });
   expect(registerStudentResponse.status).toBe(201);
@@ -23,7 +23,7 @@ describe('Auth', () => {
   const registerProfessorResponse = await request(app).post('/auth/register').send({
     name: 'Prof',
     email: 'prof@example.com',
-    password: 'password',
+    password: 'Pass12345',
     role: 'professor',
   });
   expect(registerProfessorResponse.status).toBe(201);
@@ -31,14 +31,14 @@ describe('Auth', () => {
   const registerDuplicateEmailResponse = await request(app).post('/auth/register').send({
     name: 'Alice2',
     email: 'alice@example.com',
-    password: 'password',
+    password: 'Pass12345',
     role: 'student',
   });
   expect(registerDuplicateEmailResponse.status).toBe(400);
 });
 
   test('User can login and get JWT; invalid login fails', async () => {
-    const successfulLoginResponse = await request(app).post('/auth/login').send({ email: 'alice@example.com', password: 'password' });
+    const successfulLoginResponse = await request(app).post('/auth/login').send({ email: 'alice@example.com', password: 'Pass12345' });
 expect(successfulLoginResponse.status).toBe(200);
 expect(successfulLoginResponse.body.token).toBeTruthy();
 
@@ -49,19 +49,19 @@ expect(invalidPasswordLoginResponse.status).toBe(401);
   test('Invalid role is rejected on registration', async () => {
     const invalidRoleRegistrationResponse = await request(app)
   .post('/auth/register')
-  .send({ name: 'Hacker', email: 'hacker@example.com', password: 'password', role: 'admin' });
+  .send({ name: 'Hacker', email: 'hacker@example.com', password: 'Pass12345', role: 'admin' });
 expect(invalidRoleRegistrationResponse.status).toBe(400);
-expect(invalidRoleRegistrationResponse.body.message).toMatch(/Invalid role/i);
+expect(invalidRoleRegistrationResponse.body.message).toMatch(/Validation failed/i);
   });
 
   test('Login fails for unknown email', async () => {
-    const unknownEmailLoginResponse = await request(app).post('/auth/login').send({ email: 'nouser@example.com', password: 'password' });
+    const unknownEmailLoginResponse = await request(app).post('/auth/login').send({ email: 'nouser@example.com', password: 'Pass12345' });
 expect(unknownEmailLoginResponse.status).toBe(401);
 expect(unknownEmailLoginResponse.body.message).toMatch(/Invalid credentials/i);
   });
 
   test('JWT looks valid (three segments)', async () => {
-    const professorLoginResponse = await request(app).post('/auth/login').send({ email: 'prof@example.com', password: 'password' });
+    const professorLoginResponse = await request(app).post('/auth/login').send({ email: 'prof@example.com', password: 'Pass12345' });
 expect(professorLoginResponse.status).toBe(200);
 const jwtTokenString = professorLoginResponse.body.token;
 expect(typeof jwtTokenString).toBe('string');

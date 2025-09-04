@@ -3,8 +3,8 @@ const app = require('../server');
 const { initModels, sequelize } = require('../config/database');
 
 async function registerAndLoginUserAndReturnToken(name, email, role) {
-  const registrationResponse = await request(app).post('/auth/register').send({ name, email, password: 'pass123', role });
-  const loginResponse = await request(app).post('/auth/login').send({ email, password: 'pass123' });
+  const registrationResponse = await request(app).post('/auth/register').send({ name, email, password: 'Pass12345', role });
+  const loginResponse = await request(app).post('/auth/login').send({ email, password: 'Pass12345' });
   return { token: loginResponse.body.token, id: registrationResponse.body.id };
 }
 
@@ -24,7 +24,7 @@ const { token: professorOneAuthToken, id: professorOneId } = await registerAndLo
     const t1 = await request(app)
       .post('/availability')
       .set('Authorization', `Bearer ${professorOneAuthToken}`)
-      .send({ date: '2025-04-01', timeSlot: '10:00-10:30' });
+      .send({ date: '2099-04-01', timeSlot: '10:00-10:30' });
     expect(t1.status).toBe(201);
 
     const availabilityForProfessorOneResponse = await request(app).get(`/availability/${professorOneId}`);
@@ -33,14 +33,14 @@ const availabilitySlotTenAM = availabilityForProfessorOneResponse.body.find((slo
     const bookT1 = await request(app)
       .post('/appointments')
       .set('Authorization', `Bearer ${studentOneAuthToken}`)
-      .send({ professorId: availabilitySlotTenAM.professorId, availabilityId: availabilitySlotTenAM.id });
+      .send({ availabilityId: availabilitySlotTenAM.id });
     expect(bookT1.status).toBe(201);
 
     const { token: studentTwoAuthToken } = await registerAndLoginUserAndReturnToken('Student A2', 'a2@example.com', 'student');
     const t2 = await request(app)
       .post('/availability')
       .set('Authorization', `Bearer ${professorOneAuthToken}`)
-      .send({ date: '2025-04-01', timeSlot: '11:00-11:30' });
+      .send({ date: '2099-04-01', timeSlot: '11:00-11:30' });
     expect(t2.status).toBe(201);
 
     const availabilityForProfessorOneResponseTwo = await request(app).get(`/availability/${professorOneId}`);
@@ -49,7 +49,7 @@ const availabilitySlotElevenAM = availabilityForProfessorOneResponseTwo.body.fin
     const bookT2 = await request(app)
       .post('/appointments')
       .set('Authorization', `Bearer ${studentTwoAuthToken}`)
-      .send({ professorId: availabilitySlotElevenAM.professorId, availabilityId: availabilitySlotElevenAM.id });
+      .send({ availabilityId: availabilitySlotElevenAM.id });
     expect(bookT2.status).toBe(201);
 
     const cancelA1 = await request(app)

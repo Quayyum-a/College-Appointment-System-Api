@@ -47,7 +47,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Student A1\",\n  \"email\": \"a1@example.com\",\n  \"password\": \"pass123\",\n  \"role\": \"student\"\n}"
+              "raw": "{\n  \"name\": \"Student A1\",\n  \"email\": \"a1@example.com\",\n  \"password\": \"Pass12345\",\n  \"role\": \"student\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/auth/register" }
           },
@@ -74,7 +74,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Student A2\",\n  \"email\": \"a2@example.com\",\n  \"password\": \"pass123\",\n  \"role\": \"student\"\n}"
+              "raw": "{\n  \"name\": \"Student A2\",\n  \"email\": \"a2@example.com\",\n  \"password\": \"Pass12345\",\n  \"role\": \"student\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/auth/register" }
           },
@@ -101,7 +101,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Professor P1\",\n  \"email\": \"p1@example.com\",\n  \"password\": \"pass123\",\n  \"role\": \"professor\"\n}"
+              "raw": "{\n  \"name\": \"Professor P1\",\n  \"email\": \"p1@example.com\",\n  \"password\": \"Pass12345\",\n  \"role\": \"professor\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/auth/register" }
           },
@@ -128,7 +128,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"a1@example.com\",\n  \"password\": \"pass123\"\n}"
+              "raw": "{\n  \"email\": \"a1@example.com\",\n  \"password\": \"Pass12345\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/auth/login" }
           },
@@ -154,7 +154,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"a2@example.com\",\n  \"password\": \"pass123\"\n}"
+              "raw": "{\n  \"email\": \"a2@example.com\",\n  \"password\": \"Pass12345\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/auth/login" }
           },
@@ -180,7 +180,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"p1@example.com\",\n  \"password\": \"pass123\"\n}"
+              "raw": "{\n  \"email\": \"p1@example.com\",\n  \"password\": \"Pass12345\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/auth/login" }
           },
@@ -212,7 +212,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"date\": \"2025-04-01\",\n  \"timeSlot\": \"10:00-10:30\"\n}"
+              "raw": "{\n  \"date\": \"2099-04-01\",\n  \"timeSlot\": \"10:00-10:30\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/availability" }
           },
@@ -239,7 +239,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"date\": \"2025-04-01\",\n  \"timeSlot\": \"11:00-11:30\"\n}"
+              "raw": "{\n  \"date\": \"2099-04-01\",\n  \"timeSlot\": \"11:00-11:30\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/availability" }
           },
@@ -297,7 +297,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"professorId\": {{professorP1Id}},\n  \"availabilityId\": {{availabilityT1Id}}\n}"
+              "raw": "{\n  \"availabilityId\": {{availabilityT1Id}}\n}"
             },
             "url": { "raw": "{{baseUrl}}/appointments" }
           },
@@ -324,7 +324,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"professorId\": {{professorP1Id}},\n  \"availabilityId\": {{availabilityT2Id}}\n}"
+              "raw": "{\n  \"availabilityId\": {{availabilityT2Id}}\n}"
             },
             "url": { "raw": "{{baseUrl}}/appointments" }
           },

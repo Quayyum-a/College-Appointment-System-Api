@@ -3,8 +3,8 @@ const app = require('../server');
 const { initModels, sequelize } = require('../config/database');
 
 async function registerAndLoginUserAndReturnToken(name, email, role) {
-  const registrationResponse = await request(app).post('/auth/register').send({ name, email, password: 'pass123', role });
-  const loginResponse = await request(app).post('/auth/login').send({ email, password: 'pass123' });
+  const registrationResponse = await request(app).post('/auth/register').send({ name, email, password: 'Pass12345', role });
+  const loginResponse = await request(app).post('/auth/login').send({ email, password: 'Pass12345' });
   return { token: loginResponse.body.token, id: registrationResponse.body.id };
 }
 
@@ -24,7 +24,7 @@ const { token: studentAuthToken } = await registerAndLoginUserAndReturnToken('St
     const createAvailabilityResponse = await request(app)
   .post('/availability')
   .set('Authorization', `Bearer ${professorAuthToken}`)
-  .send({ date: '2025-02-01', timeSlot: '11:00-11:30' });
+  .send({ date: '2099-02-01', timeSlot: '11:00-11:30' });
 expect(createAvailabilityResponse.status).toBe(201);
 
     const availableSlotsResponse = await request(app).get(`/availability/${professorId}`);
@@ -33,19 +33,19 @@ const availabilityId = availableSlotsResponse.body[0].id;
     const createAppointmentResponse = await request(app)
   .post('/appointments')
   .set('Authorization', `Bearer ${studentAuthToken}`)
-  .send({ professorId: availableSlotsResponse.body[0].professorId, availabilityId });
+  .send({ availabilityId });
 expect(createAppointmentResponse.status).toBe(201);
 
     const doubleBookAttemptResponse = await request(app)
   .post('/appointments')
   .set('Authorization', `Bearer ${studentAuthToken}`)
-  .send({ professorId: availableSlotsResponse.body[0].professorId, availabilityId });
+  .send({ availabilityId });
 expect(doubleBookAttemptResponse.status).toBe(400);
 
     const professorBookingAttemptResponse = await request(app)
   .post('/appointments')
   .set('Authorization', `Bearer ${professorAuthToken}`)
-  .send({ professorId: availableSlotsResponse.body[0].professorId, availabilityId });
+  .send({ availabilityId });
 expect(professorBookingAttemptResponse.status).toBe(403);
   });
 
@@ -57,7 +57,7 @@ const { token: studentTwoAuthToken } = await registerAndLoginUserAndReturnToken(
     const createAvailabilityResponseTwo = await request(app)
   .post('/availability')
   .set('Authorization', `Bearer ${professorTwoAuthToken}`)
-  .send({ date: '2025-03-01', timeSlot: '12:00-12:30' });
+  .send({ date: '2099-03-01', timeSlot: '12:00-12:30' });
 expect(createAvailabilityResponseTwo.status).toBe(201);
 
     const professorAvailabilityResponse = await request(app).get(`/availability/${professorTwoId}`);
@@ -98,29 +98,28 @@ expect(professorAppointmentsAfterCancelResponse.body.length).toBe(0);
 const bookMissingAvailabilityResponse = await request(app)
   .post('/appointments')
   .set('Authorization', `Bearer ${studentAuthTokenForMissing}`)
-  .send({ professorId: 9999, availabilityId: 9999 });
+  .send({ availabilityId: 9999 });
 expect(bookMissingAvailabilityResponse.status).toBe(404);
   });
 
-  test('Booking with mismatched professorId returns 400', async () => {
+  test('Booking uses the availability\'s professor automatically (professorId in body ignored)', async () => {
     const { token: professorOneAuthToken, id: professorOneId } = await registerAndLoginUserAndReturnToken('Prof D', 'profD@example.com', 'professor');
-const { token: professorTwoAuthTokenBooking } = await registerAndLoginUserAndReturnToken('Prof E', 'profE@example.com', 'professor');
-const { token: studentAuthTokenForMismatch } = await registerAndLoginUserAndReturnToken('Stu E', 'stuE@example.com', 'student');
+const { token: studentAuthTokenForInference } = await registerAndLoginUserAndReturnToken('Stu E', 'stuE@example.com', 'student');
 
     const a1 = await request(app)
       .post('/availability')
       .set('Authorization', `Bearer ${professorOneAuthToken}`)
-      .send({ date: '2025-05-01', timeSlot: '14:00-14:30' });
+      .send({ date: '2099-05-01', timeSlot: '14:00-14:30' });
     expect(a1.status).toBe(201);
 
     const availabilityForProfessorOneResponse = await request(app).get(`/availability/${professorOneId}`);
 const firstAvailabilitySlotForProfessorOne = availabilityForProfessorOneResponse.body[0];
 
-    const mismatchedProfessorBookingResponse = await request(app)
+    const bookingResponse = await request(app)
   .post('/appointments')
-  .set('Authorization', `Bearer ${studentAuthTokenForMismatch}`)
-  .send({ professorId: 123456, availabilityId: firstAvailabilitySlotForProfessorOne.id });
-expect(mismatchedProfessorBookingResponse.status).toBe(400);
+  .set('Authorization', `Bearer ${studentAuthTokenForInference}`)
+  .send({ availabilityId: firstAvailabilitySlotForProfessorOne.id });
+expect(bookingResponse.status).toBe(201);
   });
 
   test('Students cannot cancel appointments; only the professor can', async () => {
@@ -130,7 +129,7 @@ const { token: studentAuthTokenForCancel } = await registerAndLoginUserAndReturn
 await request(app)
   .post('/availability')
   .set('Authorization', `Bearer ${professorAuthTokenForCancel}`)
-  .send({ date: '2025-06-01', timeSlot: '15:00-15:30' });
+  .send({ date: '2099-06-01', timeSlot: '15:00-15:30' });
 
 const availabilityForCancelProfessorResponse = await request(app).get(`/availability/${professorIdForCancel}`);
 const slotForCancel = availabilityForCancelProfessorResponse.body[0];
@@ -138,7 +137,7 @@ const slotForCancel = availabilityForCancelProfessorResponse.body[0];
 const createAppointmentForCancelResponse = await request(app)
   .post('/appointments')
   .set('Authorization', `Bearer ${studentAuthTokenForCancel}`)
-  .send({ professorId: slotForCancel.professorId, availabilityId: slotForCancel.id });
+  .send({ availabilityId: slotForCancel.id });
 expect(createAppointmentForCancelResponse.status).toBe(201);
 
 const studentCancelAttemptResponse = await request(app)
